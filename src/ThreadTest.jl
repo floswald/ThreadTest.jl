@@ -1,7 +1,7 @@
 module ThreadTest
 
 	mutable struct Model 
-		a::Vector
+		a::Vector{Float64}
 		r::Vector{Float64}
 		id::Vector{Int}
 	end
@@ -14,15 +14,15 @@ module ThreadTest
 	end
 
 	function doit0(n=10)
-		m = Model(zeros(n),zeros(Int,n),zeros(n))
+		m = Model(zeros(n),zeros(n),zeros(Int,n))
 		Threads.@threads for i in 1:n
-			dothread!(m,i)
+			z=ThreadTest.dothread!(m,i)
 		end
 		return m
 	end
 
 	function doit1(n=10)
-		m = Model(zeros(n),zeros(Int,n),rand(n))
+		m = Model(zeros(n),rand(n),zeros(Int,n))
 		x = 1.3
 		Threads.@threads for i in 1:n
 			Lm = LModel(i)  # create a local model
@@ -49,8 +49,9 @@ module ThreadTest
 		Lm = LModel(i)  # create a local model
 		# do some work on the local model and store the results in 
 		# the global model array
+		# tmp = [Threads.threadid() for i in 1:14]
 		m.id[i] = Threads.threadid()  # note which id did which slot
-		m.a[i] = mean(Lm.b .* m.id[i]) 
+		m.a[i] = mean(Lm.b .* m.id[i] ) 
 		m.r[i] = rand()
 	end
 
